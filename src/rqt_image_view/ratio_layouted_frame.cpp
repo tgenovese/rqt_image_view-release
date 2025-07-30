@@ -30,17 +30,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <rqt_image_view/ratio_layouted_frame.h>
 
 #include <assert.h>
 #include <QMouseEvent>
 
-#include <rqt_image_view/ratio_layouted_frame.hpp>
+namespace rqt_image_view {
 
-namespace rqt_image_view
-{
-
-RatioLayoutedFrame::RatioLayoutedFrame(QWidget * parent, Qt::WindowFlags flags)
-: QFrame()
+RatioLayoutedFrame::RatioLayoutedFrame(QWidget* parent, Qt::WindowFlags flags)
+  : QFrame()
   , outer_layout_(NULL)
   , aspect_ratio_(4, 3)
   , smoothImage_(false)
@@ -54,7 +52,7 @@ RatioLayoutedFrame::~RatioLayoutedFrame()
 {
 }
 
-const QImage & RatioLayoutedFrame::getImage() const
+const QImage& RatioLayoutedFrame::getImage() const
 {
   return qimage_;
 }
@@ -68,7 +66,7 @@ QImage RatioLayoutedFrame::getImageCopy() const
   return img;
 }
 
-void RatioLayoutedFrame::setImage(const QImage & image)
+void RatioLayoutedFrame::setImage(const QImage& image)//, QMutex* image_mutex)
 {
   qimage_mutex_.lock();
   qimage_ = image.copy();
@@ -85,10 +83,13 @@ void RatioLayoutedFrame::resizeToFitAspectRatio()
   double width;
   double height;
 
-  if (outer_layout_) {
+  if (outer_layout_)
+  {
     width = outer_layout_->contentsRect().width();
     height = outer_layout_->contentsRect().height();
-  } else {
+  }
+  else
+  {
     // if outer layout isn't available, this will use the old
     // width and height, but this can shrink the display image if the
     // aspect ratio changes.
@@ -97,29 +98,31 @@ void RatioLayoutedFrame::resizeToFitAspectRatio()
   }
 
   double layout_ar = width / height;
-  const double image_ar = static_cast<double>(aspect_ratio_.width()) /
-    static_cast<double>(aspect_ratio_.height());
-  if (layout_ar > image_ar) {
+  const double image_ar = double(aspect_ratio_.width()) / double(aspect_ratio_.height());
+  if (layout_ar > image_ar)
+  {
     // too large width
     width = height * image_ar;
-  } else {
+  }
+  else
+  {
     // too large height
     height = width / image_ar;
   }
-  rect.setWidth(static_cast<int>(width + 0.5));
-  rect.setHeight(static_cast<int>(height + 0.5));
+  rect.setWidth(int(width + 0.5));
+  rect.setHeight(int(height + 0.5));
 
   // resize taking the border line into account
   int border = lineWidth();
   resize(rect.width() + 2 * border, rect.height() + 2 * border);
 }
 
-void RatioLayoutedFrame::setOuterLayout(QHBoxLayout * outer_layout)
+void RatioLayoutedFrame::setOuterLayout(QHBoxLayout* outer_layout)
 {
   outer_layout_ = outer_layout;
 }
 
-void RatioLayoutedFrame::setInnerFrameMinimumSize(const QSize & size)
+void RatioLayoutedFrame::setInnerFrameMinimumSize(const QSize& size)
 {
   int border = lineWidth();
   QSize new_size = size;
@@ -128,7 +131,7 @@ void RatioLayoutedFrame::setInnerFrameMinimumSize(const QSize & size)
   emit delayed_update();
 }
 
-void RatioLayoutedFrame::setInnerFrameMaximumSize(const QSize & size)
+void RatioLayoutedFrame::setInnerFrameMaximumSize(const QSize& size)
 {
   int border = lineWidth();
   QSize new_size = size;
@@ -137,13 +140,13 @@ void RatioLayoutedFrame::setInnerFrameMaximumSize(const QSize & size)
   emit delayed_update();
 }
 
-void RatioLayoutedFrame::setInnerFrameFixedSize(const QSize & size)
+void RatioLayoutedFrame::setInnerFrameFixedSize(const QSize& size)
 {
   setInnerFrameMinimumSize(size);
   setInnerFrameMaximumSize(size);
 }
 
-void RatioLayoutedFrame::setAspectRatio(std::uint16_t width, std::uint16_t height)
+void RatioLayoutedFrame::setAspectRatio(unsigned short width, unsigned short height)
 {
   int divisor = greatestCommonDivisor(width, height);
   if (divisor != 0) {
@@ -152,16 +155,17 @@ void RatioLayoutedFrame::setAspectRatio(std::uint16_t width, std::uint16_t heigh
   }
 }
 
-void RatioLayoutedFrame::paintEvent(QPaintEvent * event)
+void RatioLayoutedFrame::paintEvent(QPaintEvent* event)
 {
   (void)event;
   QPainter painter(this);
   qimage_mutex_.lock();
-  if (!qimage_.isNull()) {
+  if (!qimage_.isNull())
+  {
     resizeToFitAspectRatio();
-    // TODO(anyone): check if full draw is really necessary
-    // QPaintEvent* paint_event = dynamic_cast<QPaintEvent*>(event);
-    // painter.drawImage(paint_event->rect(), qimage_);
+    // TODO: check if full draw is really necessary
+    //QPaintEvent* paint_event = dynamic_cast<QPaintEvent*>(event);
+    //painter.drawImage(paint_event->rect(), qimage_);
     if (!smoothImage_) {
       painter.drawImage(contentsRect(), qimage_);
     } else {
@@ -186,7 +190,8 @@ void RatioLayoutedFrame::paintEvent(QPaintEvent * event)
 
 int RatioLayoutedFrame::greatestCommonDivisor(int a, int b)
 {
-  if (b == 0) {
+  if (b==0)
+  {
     return a;
   }
   return greatestCommonDivisor(b, a % b);
@@ -194,15 +199,15 @@ int RatioLayoutedFrame::greatestCommonDivisor(int a, int b)
 
 void RatioLayoutedFrame::mousePressEvent(QMouseEvent * mouseEvent)
 {
-  if(mouseEvent->button() == Qt::LeftButton) {
+  if(mouseEvent->button() == Qt::LeftButton)
+  {
     emit mouseLeft(mouseEvent->x(), mouseEvent->y());
   }
   QFrame::mousePressEvent(mouseEvent);
 }
 
-void RatioLayoutedFrame::onSmoothImageChanged(bool checked)
-{
+void RatioLayoutedFrame::onSmoothImageChanged(bool checked) {
   smoothImage_ = checked;
 }
 
-}  // namespace rqt_image_view
+}
