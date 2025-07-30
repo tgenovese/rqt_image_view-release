@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.5)
 
 project(rqt_image_view)
 
@@ -13,9 +13,9 @@ endif()
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Default to C++17
+# Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 14)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -38,8 +38,8 @@ set(rqt_image_view_SRCS
 )
 
 set(rqt_image_view_HDRS
-  include/rqt_image_view/image_view.hpp
-  include/rqt_image_view/ratio_layouted_frame.hpp
+  include/rqt_image_view/image_view.h
+  include/rqt_image_view/ratio_layouted_frame.h
 )
 
 set(rqt_image_view_UIS
@@ -108,10 +108,5 @@ ament_export_libraries(${PROJECT_NAME})
 
 # Export new-style CMake variables
 ament_export_targets(${PROJECT_NAME})
-
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-endif()
 
 ament_package()
